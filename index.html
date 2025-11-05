@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>House Price Prediction</title>
+    <link rel="stylesheet" href="static/style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>House Price Prediction</h1>
+        <form id="predictionForm">
+            <div class="form-row">
+                <div class="form-col">
+                    <div class="form-group">
+                        <label for="squareFootage">Square Footage</label>
+                        <input type="number" id="squareFootage" name="squareFootage" required min="500" step="1">
+                    </div>
+                </div>
+                <div class="form-col">
+                    <div class="form-group">
+                        <label for="bedrooms">Number of Bedrooms</label>
+                        <input type="number" id="bedrooms" name="bedrooms" required min="1" max="10">
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-col">
+                    <div class="form-group">
+                        <label for="bathrooms">Number of Bathrooms</label>
+                        <input type="number" id="bathrooms" name="bathrooms" required min="1" max="10" step="0.5">
+                    </div>
+                </div>
+                <div class="form-col">
+                    <div class="form-group">
+                        <label for="zipCode">ZIP Code</label>
+                        <input type="number" id="zipCode" name="zipCode" required min="10000" max="99999">
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-col">
+                    <div class="form-group">
+                        <label for="yearBuilt">Year Built</label>
+                        <input type="number" id="yearBuilt" name="yearBuilt" required min="1900" max="2025">
+                    </div>
+                </div>
+                <div class="form-col">
+                    <div class="form-group">
+                        <label for="garageSize">Garage Size (Cars)</label>
+                        <input type="number" id="garageSize" name="garageSize" required min="0" max="4">
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-col">
+                    <div class="form-group">
+                        <label for="crimeRate">Crime Rate (0-10)</label>
+                        <input type="number" id="crimeRate" name="crimeRate" required min="0" max="10" step="0.1">
+                    </div>
+                </div>
+                <div class="form-col">
+                    <div class="form-group">
+                        <label for="schoolRating">School District Rating (0-10)</label>
+                        <input type="number" id="schoolRating" name="schoolRating" required min="0" max="10" step="0.1">
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-col">
+                    <div class="form-group">
+                        <label for="city">City</label>
+                        <select id="city" name="city" required>
+                            <option value="">Select a city</option>
+                            <option value="Dallas">Dallas</option>
+                            <option value="Houston">Houston</option>
+                            <option value="San Antonio">San Antonio</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-col">
+                    <div class="form-group">
+                        <label for="condition">House Condition</label>
+                        <select id="condition" name="condition" required>
+                            <option value="">Select condition</option>
+                            <option value="Excellent">Excellent</option>
+                            <option value="Good">Good</option>
+                            <option value="Fair">Fair</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="features-section">
+                <label>Nearby Amenities</label>
+                <div class="checkbox-group">
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="amenityPark" name="amenities" value="Park">
+                        <label for="amenityPark">Park</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="amenityGrocery" name="amenities" value="Grocery">
+                        <label for="amenityGrocery">Grocery</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="amenityGym" name="amenities" value="Gym">
+                        <label for="amenityGym">Gym</label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="button-group">
+                <button type="submit" class="predict-btn">Predict Price</button>
+                <button type="button" class="reset-btn" onclick="resetForm()">Reset Form</button>
+            </div>
+        </form>
+
+        <div id="result"></div>
+    </div>
+
+    <script>
+        function resetForm() {
+            // Reset all form inputs
+            document.getElementById('predictionForm').reset();
+            
+            // Clear the result display
+            const resultDiv = document.getElementById('result');
+            resultDiv.style.display = 'none';
+            resultDiv.innerHTML = '';
+            
+            // Uncheck all amenity checkboxes
+            document.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+                checkbox.checked = false;
+            });
+        }
+
+        document.getElementById('predictionForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            // Gather form data
+            const formData = {
+                square_footage: parseFloat(document.getElementById('squareFootage').value),
+                num_bedrooms: parseInt(document.getElementById('bedrooms').value),
+                num_bathrooms: parseFloat(document.getElementById('bathrooms').value),
+                zip_code: parseInt(document.getElementById('zipCode').value),
+                year_built: parseInt(document.getElementById('yearBuilt').value),
+                garage_size: parseInt(document.getElementById('garageSize').value),
+                city: document.getElementById('city').value,
+                condition: document.getElementById('condition').value,
+                crime_rate: parseFloat(document.getElementById('crimeRate').value),
+                school_rating: parseFloat(document.getElementById('schoolRating').value),
+                nearby_amenities: Array.from(document.querySelectorAll('input[name="amenities"]:checked')).map(cb => cb.value).join(', ')
+            };
+
+            try {
+                const response = await fetch('http://localhost:5000/predict', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const result = await response.json();
+                
+                if (result.error) {
+                    throw new Error(result.error);
+                }
+                
+                // Display the result
+                const resultDiv = document.getElementById('result');
+                resultDiv.style.display = 'block';
+                resultDiv.innerHTML = `<strong>Predicted House Price:</strong> $${result.price.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+                
+            } catch (error) {
+                console.error('Error:', error);
+                const resultDiv = document.getElementById('result');
+                resultDiv.style.display = 'block';
+                resultDiv.style.backgroundColor = '#ffe6e6';
+                resultDiv.innerHTML = `<strong>Error:</strong> ${error.message || 'An error occurred while making the prediction. Please try again.'}`;
+            }
+        });
+    </script>
+</body>
+</html>
