@@ -3,100 +3,346 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>House Price Prediction</title>
-    <link rel="stylesheet" href="static/style.css">
+    <title>House Price Prediction | AI-Powered Home Valuation</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 40px;
+            animation: slideDown 0.6s ease-out;
+        }
+
+        .header h1 {
+            font-size: 3em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.95;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            padding: 50px;
+            animation: slideUp 0.6s ease-out;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+            margin-bottom: 25px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group label {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+            font-size: 0.95em;
+        }
+
+        .form-group input,
+        .form-group select {
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1em;
+            transition: all 0.3s ease;
+            background-color: #f9f9f9;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #667eea;
+            background-color: white;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .features-section {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            padding: 25px;
+            border-radius: 12px;
+            margin-bottom: 25px;
+        }
+
+        .features-section label {
+            font-weight: 600;
+            color: #333;
+            display: block;
+            margin-bottom: 15px;
+            font-size: 0.95em;
+        }
+
+        .checkbox-group {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+        }
+
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .checkbox-item input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+            accent-color: #667eea;
+        }
+
+        .checkbox-item label {
+            margin-bottom: 0;
+            cursor: pointer;
+            color: #555;
+            font-weight: 500;
+        }
+
+        .button-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .predict-btn,
+        .reset-btn {
+            padding: 14px 30px;
+            font-size: 1.05em;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .predict-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .predict-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+        }
+
+        .predict-btn:active {
+            transform: translateY(0);
+        }
+
+        .reset-btn {
+            background: #f0f0f0;
+            color: #333;
+            border: 2px solid #e0e0e0;
+        }
+
+        .reset-btn:hover {
+            background: #e0e0e0;
+        }
+
+        #result {
+            display: none;
+            padding: 25px;
+            border-radius: 12px;
+            font-size: 1.1em;
+            font-weight: 600;
+            text-align: center;
+            animation: resultSlide 0.5s ease-out;
+        }
+
+        @keyframes resultSlide {
+            from {
+                opacity: 0;
+                transform: scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        #result.success {
+            background: linear-gradient(135deg, #d4fc79 0%, #96f550 100%);
+            color: #2d5016;
+            border-left: 5px solid #65b741;
+        }
+
+        #result.error {
+            background: linear-gradient(135deg, #ff9a9a 0%, #ff6b6b 100%);
+            color: #7a0e0e;
+            border-left: 5px solid #d63031;
+        }
+
+        .price-display {
+            font-size: 2.2em;
+            color: #667eea;
+            margin-top: 10px;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2em;
+            }
+
+            .container {
+                padding: 30px 20px;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+
+            .button-group {
+                grid-template-columns: 1fr;
+            }
+
+            .checkbox-group {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
 </head>
 <body>
+    <div class="header">
+        <h1>🏡 House Price Prediction</h1>
+        <p>AI-Powered Real Estate Valuation</p>
+    </div>
+
     <div class="container">
-        <h1>House Price Prediction</h1>
         <form id="predictionForm">
             <div class="form-row">
-                <div class="form-col">
-                    <div class="form-group">
-                        <label for="squareFootage">Square Footage</label>
-                        <input type="number" id="squareFootage" name="squareFootage" required min="500" step="1">
-                    </div>
+                <div class="form-group">
+                    <label for="squareFootage">📐 Square Footage</label>
+                    <input type="number" id="squareFootage" name="squareFootage" required min="500" step="1" placeholder="e.g., 2500">
                 </div>
-                <div class="form-col">
-                    <div class="form-group">
-                        <label for="bedrooms">Number of Bedrooms</label>
-                        <input type="number" id="bedrooms" name="bedrooms" required min="1" max="10">
-                    </div>
+                <div class="form-group">
+                    <label for="bedrooms">🛏️ Number of Bedrooms</label>
+                    <input type="number" id="bedrooms" name="bedrooms" required min="1" max="10" placeholder="e.g., 3">
                 </div>
             </div>
 
             <div class="form-row">
-                <div class="form-col">
-                    <div class="form-group">
-                        <label for="bathrooms">Number of Bathrooms</label>
-                        <input type="number" id="bathrooms" name="bathrooms" required min="1" max="10" step="0.5">
-                    </div>
+                <div class="form-group">
+                    <label for="bathrooms">🚿 Number of Bathrooms</label>
+                    <input type="number" id="bathrooms" name="bathrooms" required min="1" max="10" step="0.5" placeholder="e.g., 2.5">
                 </div>
-                <div class="form-col">
-                    <div class="form-group">
-                        <label for="zipCode">ZIP Code</label>
-                        <input type="number" id="zipCode" name="zipCode" required min="10000" max="99999">
-                    </div>
+                <div class="form-group">
+                    <label for="zipCode">📍 ZIP Code</label>
+                    <input type="number" id="zipCode" name="zipCode" required min="10000" max="99999" placeholder="e.g., 75001">
                 </div>
             </div>
 
             <div class="form-row">
-                <div class="form-col">
-                    <div class="form-group">
-                        <label for="yearBuilt">Year Built</label>
-                        <input type="number" id="yearBuilt" name="yearBuilt" required min="1900" max="2025">
-                    </div>
+                <div class="form-group">
+                    <label for="yearBuilt">🏗️ Year Built</label>
+                    <input type="number" id="yearBuilt" name="yearBuilt" required min="1900" max="2025" placeholder="e.g., 2015">
                 </div>
-                <div class="form-col">
-                    <div class="form-group">
-                        <label for="garageSize">Garage Size (Cars)</label>
-                        <input type="number" id="garageSize" name="garageSize" required min="0" max="4">
-                    </div>
+                <div class="form-group">
+                    <label for="garageSize">🚗 Garage Size (Cars)</label>
+                    <input type="number" id="garageSize" name="garageSize" required min="0" max="4" placeholder="e.g., 2">
                 </div>
             </div>
 
             <div class="form-row">
-                <div class="form-col">
-                    <div class="form-group">
-                        <label for="crimeRate">Crime Rate (0-10)</label>
-                        <input type="number" id="crimeRate" name="crimeRate" required min="0" max="10" step="0.1">
-                    </div>
+                <div class="form-group">
+                    <label for="crimeRate">🔒 Crime Rate (0-10)</label>
+                    <input type="number" id="crimeRate" name="crimeRate" required min="0" max="10" step="0.1" placeholder="e.g., 3.5">
                 </div>
-                <div class="form-col">
-                    <div class="form-group">
-                        <label for="schoolRating">School District Rating (0-10)</label>
-                        <input type="number" id="schoolRating" name="schoolRating" required min="0" max="10" step="0.1">
-                    </div>
+                <div class="form-group">
+                    <label for="schoolRating">🎓 School District Rating (0-10)</label>
+                    <input type="number" id="schoolRating" name="schoolRating" required min="0" max="10" step="0.1" placeholder="e.g., 8.0">
                 </div>
             </div>
 
             <div class="form-row">
-                <div class="form-col">
-                    <div class="form-group">
-                        <label for="city">City</label>
-                        <select id="city" name="city" required>
-                            <option value="">Select a city</option>
-                            <option value="Dallas">Dallas</option>
-                            <option value="Houston">Houston</option>
-                            <option value="San Antonio">San Antonio</option>
-                        </select>
-                    </div>
+                <div class="form-group">
+                    <label for="city">🏙️ City</label>
+                    <select id="city" name="city" required>
+                        <option value="">Select a city</option>
+                        <option value="Dallas">Dallas</option>
+                        <option value="Houston">Houston</option>
+                        <option value="San Antonio">San Antonio</option>
+                    </select>
                 </div>
-                <div class="form-col">
-                    <div class="form-group">
-                        <label for="condition">House Condition</label>
-                        <select id="condition" name="condition" required>
-                            <option value="">Select condition</option>
-                            <option value="Excellent">Excellent</option>
-                            <option value="Good">Good</option>
-                            <option value="Fair">Fair</option>
-                        </select>
-                    </div>
+                <div class="form-group">
+                    <label for="condition">✨ House Condition</label>
+                    <select id="condition" name="condition" required>
+                        <option value="">Select condition</option>
+                        <option value="Excellent">Excellent</option>
+                        <option value="Good">Good</option>
+                        <option value="Fair">Fair</option>
+                    </select>
                 </div>
             </div>
 
             <div class="features-section">
-                <label>Nearby Amenities</label>
+                <label>🏘️ Nearby Amenities</label>
                 <div class="checkbox-group">
                     <div class="checkbox-item">
                         <input type="checkbox" id="amenityPark" name="amenities" value="Park">
@@ -104,18 +350,18 @@
                     </div>
                     <div class="checkbox-item">
                         <input type="checkbox" id="amenityGrocery" name="amenities" value="Grocery">
-                        <label for="amenityGrocery">Grocery</label>
+                        <label for="amenityGrocery">Grocery Store</label>
                     </div>
                     <div class="checkbox-item">
                         <input type="checkbox" id="amenityGym" name="amenities" value="Gym">
-                        <label for="amenityGym">Gym</label>
+                        <label for="amenityGym">Gym / Fitness</label>
                     </div>
                 </div>
             </div>
 
             <div class="button-group">
-                <button type="submit" class="predict-btn">Predict Price</button>
-                <button type="button" class="reset-btn" onclick="resetForm()">Reset Form</button>
+                <button type="submit" class="predict-btn">💰 Predict Price</button>
+                <button type="button" class="reset-btn" onclick="resetForm()">🔄 Reset Form</button>
             </div>
         </form>
 
@@ -124,15 +370,10 @@
 
     <script>
         function resetForm() {
-            // Reset all form inputs
             document.getElementById('predictionForm').reset();
-            
-            // Clear the result display
             const resultDiv = document.getElementById('result');
             resultDiv.style.display = 'none';
             resultDiv.innerHTML = '';
-            
-            // Uncheck all amenity checkboxes
             document.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
                 checkbox.checked = false;
             });
@@ -141,7 +382,6 @@
         document.getElementById('predictionForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             
-            // Gather form data
             const formData = {
                 square_footage: parseFloat(document.getElementById('squareFootage').value),
                 num_bedrooms: parseInt(document.getElementById('bedrooms').value),
@@ -155,6 +395,11 @@
                 school_rating: parseFloat(document.getElementById('schoolRating').value),
                 nearby_amenities: Array.from(document.querySelectorAll('input[name="amenities"]:checked')).map(cb => cb.value).join(', ')
             };
+
+            const resultDiv = document.getElementById('result');
+            resultDiv.style.display = 'block';
+            resultDiv.className = '';
+            resultDiv.innerHTML = '<div class="loading"></div> Analyzing property...';
 
             try {
                 const response = await fetch('http://localhost:5000/predict', {
@@ -175,17 +420,16 @@
                     throw new Error(result.error);
                 }
                 
-                // Display the result
-                const resultDiv = document.getElementById('result');
-                resultDiv.style.display = 'block';
-                resultDiv.innerHTML = `<strong>Predicted House Price:</strong> $${result.price.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+                resultDiv.className = 'success';
+                resultDiv.innerHTML = `
+                    <div>✅ Predicted House Price</div>
+                    <div class="price-display">$${result.price.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</div>
+                `;
                 
             } catch (error) {
                 console.error('Error:', error);
-                const resultDiv = document.getElementById('result');
-                resultDiv.style.display = 'block';
-                resultDiv.style.backgroundColor = '#ffe6e6';
-                resultDiv.innerHTML = `<strong>Error:</strong> ${error.message || 'An error occurred while making the prediction. Please try again.'}`;
+                resultDiv.className = 'error';
+                resultDiv.innerHTML = `<strong>❌ Error:</strong> ${error.message || 'An error occurred while making the prediction. Please try again.'}`;
             }
         });
     </script>
