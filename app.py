@@ -13,6 +13,7 @@ scaler_path = os.path.join('model', 'scaler.pkl')
 
 try:
     loaded_model = joblib.load(model_path)
+    
     loaded_scaler = joblib.load(scaler_path)
 except Exception as e:
     print(f"Error loading model or scaler: {e}")
